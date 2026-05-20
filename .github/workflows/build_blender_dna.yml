@@ -19,12 +19,12 @@ jobs:
     - name: Install SWIG
       run: choco install swig -y
         
-    - name: Configure CMake (Strict Python 3.13 Override)
+    - name: Configure CMake (Block Windows Registry)
       run: |
         cd dnacalib
         mkdir build
         cd build
-        cmake -DPYTHON3_EXACT_VERSION=3.13 -DPython3_EXECUTABLE="$env:pythonLocation\python.exe" -DPython3_LIBRARY="$env:pythonLocation\libs\python313.lib" -DPython3_INCLUDE_DIR="$env:pythonLocation\include" -DPython3_ROOT_DIR="$env:pythonLocation" ..
+        cmake -DPython3_ROOT_DIR="${{ env.pythonLocation }}" -DPython3_FIND_REGISTRY=NEVER -DPython_FIND_REGISTRY=NEVER -DPython3_EXECUTABLE="${{ env.pythonLocation }}\python.exe" -DPython3_INCLUDE_DIR="${{ env.pythonLocation }}\include" -DPython3_LIBRARY="${{ env.pythonLocation }}\libs\python313.lib" ..
         
     - name: Build DNA SDK
       run: |
