@@ -1,43 +1,40 @@
 name: Build DNA SDK for Blender 5.1 (Python 3.13)
 
-on: [workflow_dispatch]
+on:
+  workflow_dispatch: # This allows you to run the workflow manually from the Actions tab
 
 jobs:
-build-windows:
-runs-on: windows-latest
-
-steps:
-  # Step 1: Grab the Epic Games source code from your fork
-  - name: Checkout Repository
-    uses: actions/checkout@v4
-
-  # Step 2: Set up the EXACT Python version used by Blender 5.1.1
-  - name: Set up Python 3.13
-    uses: actions/setup-python@v5
-    with:
-      python-version: '3.13'
-      architecture: 'x64'
-
-  # Step 3: Configure the C++ Compiler using CMake
-  - name: Configure CMake
-    run: |
-      mkdir build
-      cd build
-      cmake .. -DPYTHON_EXECUTABLE="$(python -c 'import sys; print(sys.executable)')"
-
-  # Step 4: Compile the proprietary DNA code into Python bindings
-  - name: Build SDK
-    run: |
-      cd build
-      cmake --build . --config Release
-
-  # Step 5: Upload the compiled files so you can download them
-  - name: Upload Compiled Python Module
-    uses: actions/upload-artifact@v4
-    with:
-      name: pydna-blender5.1-windows
-      # This grabs the compiled binary files from the standard CMake Release output folder
-      path: |
-        build/Release/*.pyd
-        build/Release/*.dll
-      if-no-files-found: warn
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+    # Step 1: Get the Epic Games repository code
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      
+    # Step 2: Set up the exact Python version Blender 5.1.1 uses
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+        
+    # Step 3: Configure the build using Epic's CMake lists, targeting our Python version
+    - name: Configure CMake
+      run: |
+        mkdir build
+        cd build
+        cmake -DPYTHON3_EXACT_VERSION=3.13 ..
+        
+    # Step 4: Compile the C++ code into a Python module
+    - name: Build DNA SDK
+      run: |
+        cd build
+        cmake --build . --config Release
+        
+    # Step 5: Save the compiled output so you can download it
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: pydna-blender5.1-windows
+        path: build/lib/Release/
+```
