@@ -1,30 +1,30 @@
-name: Build DNA SDK for Blender 5.1 (Python 3.13)
+name: Build DNA SDK for Blender 4.2 (Python 3.11)
 
 on:
   workflow_dispatch:
 
 jobs:
   build-windows:
-    runs-on: windows-latest
+    runs-on: windows-2022 # Forces older server without Python 3.14 conflicts
     
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
       
-    - name: Set up Python 3.13
+    - name: Set up Python 3.11
       uses: actions/setup-python@v5
       with:
-        python-version: '3.13'
+        python-version: '3.11'
 
     - name: Install SWIG
       run: choco install swig -y
         
-    - name: Configure CMake (Block Windows Registry)
+    - name: Configure CMake
       run: |
         cd dnacalib
         mkdir build
         cd build
-        cmake -DPython3_ROOT_DIR="${{ env.pythonLocation }}" -DPython3_FIND_REGISTRY=NEVER -DPython_FIND_REGISTRY=NEVER -DPython3_EXECUTABLE="${{ env.pythonLocation }}\python.exe" -DPython3_INCLUDE_DIR="${{ env.pythonLocation }}\include" -DPython3_LIBRARY="${{ env.pythonLocation }}\libs\python313.lib" ..
+        cmake -DPYTHON3_EXACT_VERSION=3.11 ..
         
     - name: Build DNA SDK
       run: |
@@ -34,7 +34,7 @@ jobs:
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: pydna-blender5.1-windows
+        name: pydna-blender4.2-windows
         path: |
           dnacalib/build/**/dna.py
           dnacalib/build/**/*.pyd
