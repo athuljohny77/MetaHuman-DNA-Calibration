@@ -36,9 +36,12 @@ jobs:
         cd dnacalib/build
         cmake --build . --config Release
         
-    # Step 6: Save the compiled py3bin output folder so you can download it
+    # Step 6: Save the compiled output using wildcards to bypass Visual Studio folder nesting
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: pydna-blender5.1-windows
-        path: dnacalib/build/py3bin/
+        path: |
+          dnacalib/build/**/dna.py
+          dnacalib/build/**/*.pyd
+          dnacalib/build/**/*.dll
