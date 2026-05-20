@@ -1,0 +1,40 @@
+name: Build DNA SDK for Blender 5.1 (Python 3.13)
+
+on:
+  workflow_dispatch: # This allows you to run the workflow manually from the Actions tab
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+    # Step 1: Get the Epic Games repository code
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      
+    # Step 2: Set up the exact Python version Blender 5.1.1 uses
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+        
+    # Step 3: Configure the build using Epic's CMake lists, targeting our Python version
+    - name: Configure CMake
+      run: |
+        mkdir build
+        cd build
+        cmake -DPYTHON3_EXACT_VERSION=3.13 ..
+        
+    # Step 4: Compile the C++ code into a Python module
+    - name: Build DNA SDK
+      run: |
+        cd build
+        cmake --build . --config Release
+        
+    # Step 5: Save the compiled output so you can download it
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: pydna-blender5.1-windows
+        path: build/lib/Release/
+```
