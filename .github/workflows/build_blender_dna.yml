@@ -1,42 +1,36 @@
 name: Build DNA SDK for Blender 5.1 (Python 3.13)
 
 on:
-  workflow_dispatch: # This allows you to run the workflow manually from the Actions tab
+  workflow_dispatch:
 
 jobs:
   build-windows:
     runs-on: windows-latest
     
     steps:
-    # Step 1: Get the Epic Games repository code
     - name: Checkout Repository
       uses: actions/checkout@v4
       
-    # Step 2: Set up the exact Python version Blender 5.1 uses
     - name: Set up Python 3.13
       uses: actions/setup-python@v5
       with:
         python-version: '3.13'
 
-    # Step 3: Install SWIG (Required for generating Python bindings from C++)
     - name: Install SWIG
       run: choco install swig -y
         
-    # Step 4: Configure the build using Epic's CMake lists inside the dnacalib folder
-    - name: Configure CMake
+    - name: Configure CMake (Forced Path)
       run: |
         cd dnacalib
         mkdir build
         cd build
-        cmake -DPYTHON3_EXACT_VERSION=3.13 ..
+        cmake -DPYTHON3_EXACT_VERSION=3.13 -DPython3_ROOT_DIR="$env:pythonLocation" -DPython3_FIND_STRATEGY=LOCATION ..
         
-    # Step 5: Compile the C++ code into a Python module
     - name: Build DNA SDK
       run: |
         cd dnacalib/build
         cmake --build . --config Release
         
-    # Step 6: Save the compiled output using wildcards to bypass Visual Studio folder nesting
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
